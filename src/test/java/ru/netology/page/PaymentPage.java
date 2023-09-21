@@ -29,128 +29,39 @@ public class PaymentPage {
         viewPaymentPage.findBy(text("Оплата по карте")).shouldBe(visible);
     }
 
-    // massage
-    public boolean massagePositive(String exactText) {
-        try {
-            massageSuccess.shouldHave(Condition.exactText(exactText), Duration.ofSeconds(25)).shouldBe(visible);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public boolean massageError(String exactText) {
-        try {
-            massageError.shouldHave(Condition.exactText(exactText), Duration.ofSeconds(25)).shouldBe(visible);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    //TO DO => input
-    public StartPage validPaymentActiveCard() {
-        activeCard();
-        validDate();
-        validName();
-        validCode();
+    public StartPage orderTour(DataHelper.UserInfo info) {
+        fieldCard.sendKeys(info.getCard());
+        fieldMonth.sendKeys(info.getMonth());
+        fieldYear.sendKeys(info.getYear());
+        fieldName.sendKeys(info.getName());
+        fieldCode.sendKeys(info.getCode());
         button.findBy(text("Продолжить")).click();
         return new StartPage();
     }
 
-    public StartPage rejectionInPaymentInactiveCard() {
-        inactiveCard();
-        validDate();
-        validName();
-        validCode();
-        button.findBy(text("Продолжить")).click();
-        return new StartPage();
+    // massages
+    public void massagePositive() {
+        massageSuccess.shouldHave(Condition.exactText("Успешно\n" + "Операция одобрена Банком."), Duration.ofSeconds(25)).shouldBe(visible);
     }
 
-    //cards
-    public void activeCard() {
-        fieldCard.sendKeys(DataHelper.getValidActiveCard().getCard());
+    public void massageError() {
+        massageError.shouldHave(Condition.exactText("Ошибка\n" + "Ошибка! Банк отказал в проведении операции."), Duration.ofSeconds(25)).shouldBe(visible);
     }
 
-    public void inactiveCard() {
-        fieldCard.sendKeys(DataHelper.getValidInactiveCard().getCard());
+    // to check notifications
+    public void notificationFormat(int num) {
+        sub.get(num).shouldBe(visible).shouldHave(Condition.exactText("Неверный формат"));
     }
 
-    public void randomCard() {
-        fieldCard.sendKeys(DataHelper.getRandomCard());
+    public void notificationExpired(int num) {
+        sub.get(num).shouldBe(visible).shouldHave(Condition.exactText("Истёк срок действия карты"));
     }
 
-    //date
-    public void validDate() {
-        var date = DataHelper.getValidDateOfCard();
-        fieldMonth.sendKeys(date.getMonth());
-        fieldYear.sendKeys(date.getYear());
+    public void notificationIncorrectDeadline(int num) {
+        sub.get(num).shouldBe(visible).shouldHave(Condition.exactText("Неверно указан срок действия карты"));
     }
 
-    public void localMonth() {
-        fieldMonth.sendKeys(DataHelper.getLocalMonth());
-    }
-
-    public void dateOfPassedMonth() {
-        var date = DataHelper.getDateMinusMonth();
-        fieldMonth.sendKeys(date.getMonth());
-        fieldYear.sendKeys(date.getYear());
-    }
-
-    public void localYear() {
-        fieldYear.sendKeys(DataHelper.getLocalYear());
-    }
-
-    //name
-    public void validName() {
-        fieldName.sendKeys(DataHelper.getValidName().getName());
-    }
-
-    public void validNameWithDash() {
-        fieldName.sendKeys(DataHelper.getValidNameWithDash().getName());
-    }
-
-    public void invalidName() {
-        fieldName.sendKeys(DataHelper.getCyrillicName().getName());
-    }
-
-    //code
-    public void validCode() {
-        fieldCode.sendKeys(DataHelper.getValidCode().getCode());
-    }
-
-    //random
-    public void inputRandomNumbers(SelenideElement selenideElement, int min, int max) {
-        selenideElement.sendKeys(String.valueOf(DataHelper.getRandomNumber(min, max)));
-    }
-
-    public void inputRandomLetters(SelenideElement selenideElement, int num) {
-        selenideElement.sendKeys(DataHelper.getRandomLetters(num));
-    }
-
-    // TO DO => click
-    public void clickButton() {
-        button.findBy(text("Продолжить")).click();
-    }
-
-    // TO DO => check
-    public boolean checkEmptyField(SelenideElement selenideElement, Condition condition, int num, String exactText) {
-        try {
-            selenideElement.shouldBe(condition);
-            sub.get(num).shouldHave(Condition.exactText(exactText));
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public boolean checkNotEmptyField(SelenideElement selenideElement, Condition condition, int num, String exactText) {
-        try {
-            selenideElement.shouldNotBe(condition);
-            sub.get(num).shouldHave(Condition.exactText(exactText));
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+    public void notificationRequiredField(int num) {
+        sub.get(num).shouldBe(visible).shouldHave(Condition.exactText("Поле обязательно для заполнения"));
     }
 }

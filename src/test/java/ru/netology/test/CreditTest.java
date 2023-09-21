@@ -1,7 +1,5 @@
 package ru.netology.test;
 
-import com.codeborne.selenide.Condition;
-import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.logevents.SelenideLogger;
 import io.qameta.allure.selenide.AllureSelenide;
 import org.junit.jupiter.api.*;
@@ -9,10 +7,6 @@ import ru.netology.data.DataHelper;
 import ru.netology.data.SQLHelper;
 import ru.netology.page.StartPage;
 
-import java.util.function.BooleanSupplier;
-
-import static com.codeborne.selenide.Selectors.byXpath;
-import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.open;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,7 +14,7 @@ public class CreditTest {
 
     @BeforeEach
     void setUp() {
-        open("http://localhost:8080", StartPage.class);
+        open("http://localhost:8080");
         SQLHelper.cleanDB();
     }
 
@@ -34,119 +28,134 @@ public class CreditTest {
         SelenideLogger.removeListener("allure");
     }
 
-    // !!!!!!! positive tests - credit
+    // positive tests
     @Test
     @DisplayName("Should be approved credit all fields are valid")
     void shouldBeApprovedCreditAllFieldsAreValid() {
         StartPage startPage = new StartPage();
-
         var creditPage = startPage.checkCreditSystem();
-        creditPage.validCreditActiveCard();
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.getValidActiveCard().getCard(),
+                        DataHelper.getValidMonth(),
+                        DataHelper.getValidYear(),
+                        DataHelper.getValidName(),
+                        DataHelper.generateRandomNumber(3));
+        creditPage.creditForTour(userInfo);
 
-        assertTrue(creditPage.massagePositive("Успешно\n" + "Операция одобрена Банком."));
-        assertEquals("APPROVED", SQLHelper.getStatusOfCardAfterCredit());
+        creditPage.massagePositive();
+        assertEquals(DataHelper.getValidActiveCard().getStatus(), SQLHelper.getStatusOfCardAfterCredit());
     }
 
     @Test
     @DisplayName("Should be approved credit if double name is in name field")
     void shouldBeApprovedCreditIfDoubleNameIsInNameField() {
         StartPage startPage = new StartPage();
-
         var creditPage = startPage.checkCreditSystem();
-        creditPage.activeCard();
-        creditPage.validDate();
-        creditPage.validNameWithDash();
-        creditPage.validCode();
-        creditPage.clickButton();
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.getValidActiveCard().getCard(),
+                        DataHelper.getValidMonth(),
+                        DataHelper.getValidYear(),
+                        DataHelper.getValidNameWithDash(),
+                        DataHelper.generateRandomNumber(3));
+        creditPage.creditForTour(userInfo);
 
-        assertTrue(creditPage.massagePositive("Успешно\n" + "Операция одобрена Банком."));
-        assertEquals("APPROVED", SQLHelper.getStatusOfCardAfterCredit());
+        creditPage.massagePositive();
+        assertEquals(DataHelper.getValidActiveCard().getStatus(), SQLHelper.getStatusOfCardAfterCredit());
     }
 
     @Test
     @DisplayName("Should  be approved credit if one letter is in name field")
     void shouldBeApprovedCreditIfOneLetterIsInNameField() {
         StartPage startPage = new StartPage();
-
-        SelenideElement fieldName = $(byXpath("/html/body/div/div/form/fieldset/div[3]/span/span[1]/span/span/span[2]/input"));
         var creditPage = startPage.checkCreditSystem();
-        creditPage.activeCard();
-        creditPage.validDate();
-        creditPage.inputRandomLetters(fieldName, 1);
-        creditPage.validCode();
-        creditPage.clickButton();
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.getValidActiveCard().getCard(),
+                        DataHelper.getValidMonth(),
+                        DataHelper.getValidYear(),
+                        DataHelper.getRandomLetters(1),
+                        DataHelper.generateRandomNumber(3));
+        creditPage.creditForTour(userInfo);
 
-        assertTrue(creditPage.massagePositive("Успешно\n" + "Операция одобрена Банком."));
-        assertEquals("APPROVED", SQLHelper.getStatusOfCardAfterCredit());
+        creditPage.massagePositive();
+        assertEquals(DataHelper.getValidActiveCard().getStatus(), SQLHelper.getStatusOfCardAfterCredit());
     }
 
     @Test
     @DisplayName("Should be approved credit if max letters are in name field")
     void shouldBeApprovedCreditIfMaxLettersAreInNameField() {
         StartPage startPage = new StartPage();
-
-        SelenideElement fieldName = $(byXpath("/html/body/div/div/form/fieldset/div[3]/span/span[1]/span/span/span[2]/input"));
         var creditPage = startPage.checkCreditSystem();
-        creditPage.activeCard();
-        creditPage.validDate();
-        creditPage.inputRandomLetters(fieldName, 30);
-        creditPage.validCode();
-        creditPage.clickButton();
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.getValidActiveCard().getCard(),
+                        DataHelper.getValidMonth(),
+                        DataHelper.getValidYear(),
+                        DataHelper.getRandomLetters(30),
+                        DataHelper.generateRandomNumber(3));
+        creditPage.creditForTour(userInfo);
 
-        assertTrue(creditPage.massagePositive("Успешно\n" + "Операция одобрена Банком."));
-        assertEquals("APPROVED", SQLHelper.getStatusOfCardAfterCredit());
+        creditPage.massagePositive();
+        assertEquals(DataHelper.getValidActiveCard().getStatus(), SQLHelper.getStatusOfCardAfterCredit());
     }
 
-    //bug результат - успешно
     @Test
     @DisplayName("Should get credit rejection on valid inactive card")
     public void shouldGetCreditRejectionOnValidInactiveCard() {
         StartPage startPage = new StartPage();
-
         var creditPage = startPage.checkCreditSystem();
-        creditPage.rejectionInCreditInactiveCard();
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.getValidInactiveCard().getCard(),
+                        DataHelper.getValidMonth(),
+                        DataHelper.getValidYear(),
+                        DataHelper.getValidName(),
+                        DataHelper.generateRandomNumber(3));
+        creditPage.creditForTour(userInfo);
 
-        assertTrue(creditPage.massageError("Ошибка\n" + "Ошибка! Банк отказал в проведении операции."));
-        assertEquals("DECLINED", SQLHelper.getStatusOfCardAfterCredit());
+        creditPage.massageError();
+        assertEquals(DataHelper.getValidInactiveCard().getStatus(), SQLHelper.getStatusOfCardAfterCredit());
     }
 
     @Test
     @DisplayName("Should be approved credit if card validity period is in current month")
     public void shouldBeApprovedCreditIfValidPeriodIsInCurrentMonth() {
         StartPage startPage = new StartPage();
-
         var creditPage = startPage.checkCreditSystem();
-        creditPage.activeCard();
-        creditPage.localMonth();
-        creditPage.localYear();
-        creditPage.validName();
-        creditPage.validCode();
-        creditPage.clickButton();
-
-        assertTrue(creditPage.massagePositive("Успешно\n" + "Операция одобрена Банком."));
-        assertEquals("APPROVED", SQLHelper.getStatusOfCardAfterCredit());
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.getValidActiveCard().getCard(),
+                        DataHelper.generateValidMonth(0),
+                        DataHelper.generateValidYear(0),
+                        DataHelper.getValidName(),
+                        DataHelper.generateRandomNumber(3));
+        creditPage.creditForTour(userInfo);
+        creditPage.massagePositive();
+        assertEquals(DataHelper.getValidActiveCard().getStatus(), SQLHelper.getStatusOfCardAfterCredit());
     }
 
-    // !!!!!!! negative tests - credit
+    // negative tests
     @Test
     @DisplayName("Should not be send credit request if all fields are empty")
     public void shouldNotBeSendCreditRequestIfAllFieldsAreEmpty() {
         StartPage startPage = new StartPage();
-
-        SelenideElement fieldCard = $("input[placeholder='0000 0000 0000 0000']");
-        SelenideElement fieldMonth = $("input[placeholder='08']");
-        SelenideElement fieldYear = $("input[placeholder='22']");
-        SelenideElement fieldName = $(byXpath("/html/body/div/div/form/fieldset/div[3]/span/span[1]/span/span/span[2]/input"));
-        SelenideElement fieldCode = $("input[placeholder='999']");
-
         var creditPage = startPage.checkCreditSystem();
-        creditPage.clickButton();
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.generateRandomNumber(0),
+                        DataHelper.generateRandomNumber(0),
+                        DataHelper.generateRandomNumber(0),
+                        DataHelper.getRandomLetters(0),
+                        DataHelper.generateRandomNumber(0));
+        creditPage.creditForTour(userInfo);
 
-        assertTrue(creditPage.checkEmptyField(fieldCard, Condition.empty, 0, "Неверный формат"));
-        assertTrue(creditPage.checkEmptyField(fieldMonth, Condition.empty, 1, "Неверный формат"));
-        assertTrue(creditPage.checkEmptyField(fieldYear, Condition.empty, 2, "Неверный формат"));
-        assertTrue(creditPage.checkEmptyField(fieldName, Condition.empty, 3, "Поле обязательно для заполнения"));
-        assertTrue(creditPage.checkEmptyField(fieldCode, Condition.empty, 4, "Неверный формат"));
+        creditPage.notificationFormat(0);
+        creditPage.notificationFormat(1);
+        creditPage.notificationFormat(2);
+        creditPage.notificationRequiredField(3);
+        creditPage.notificationFormat(4);
         assertNull(SQLHelper.getStatusOfCardAfterCredit());
     }
 
@@ -154,16 +163,17 @@ public class CreditTest {
     @DisplayName("Should not be send credit request if card field is empty")
     public void shouldNotBeSendCreditRequestIfCardFieldIsEmpty() {
         StartPage startPage = new StartPage();
-
-        SelenideElement fieldCard = $("input[placeholder='0000 0000 0000 0000']");
-
         var creditPage = startPage.checkCreditSystem();
-        creditPage.validDate();
-        creditPage.validName();
-        creditPage.validCode();
-        creditPage.clickButton();
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.generateRandomNumber(0),
+                        DataHelper.getValidMonth(),
+                        DataHelper.getValidYear(),
+                        DataHelper.getValidName(),
+                        DataHelper.generateRandomNumber(3));
+        creditPage.creditForTour(userInfo);
 
-        assertTrue(creditPage.checkEmptyField(fieldCard, Condition.empty, 0, "Неверный формат"));
+        creditPage.notificationFormat(0);
         assertNull(SQLHelper.getStatusOfCardAfterCredit());
     }
 
@@ -171,17 +181,17 @@ public class CreditTest {
     @DisplayName("Should not be send credit request if month field is empty")
     public void shouldNotBeSendCreditRequestIfMonthFieldIsEmpty() {
         StartPage startPage = new StartPage();
-
-        SelenideElement fieldMonth = $("input[placeholder='08']");
-
         var creditPage = startPage.checkCreditSystem();
-        creditPage.activeCard();
-        creditPage.localYear();
-        creditPage.validName();
-        creditPage.validCode();
-        creditPage.clickButton();
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.getValidActiveCard().getCard(),
+                        DataHelper.generateRandomNumber(0),
+                        DataHelper.getValidYear(),
+                        DataHelper.getValidName(),
+                        DataHelper.generateRandomNumber(3));
+        creditPage.creditForTour(userInfo);
 
-        assertTrue(creditPage.checkEmptyField(fieldMonth, Condition.empty, 0, "Неверный формат"));
+        creditPage.notificationFormat(0);
         assertNull(SQLHelper.getStatusOfCardAfterCredit());
     }
 
@@ -189,17 +199,16 @@ public class CreditTest {
     @DisplayName("Should not be send credit request if year field is empty")
     public void shouldNotBeSendCreditRequestIfYearFieldIsEmpty() {
         StartPage startPage = new StartPage();
-
-        SelenideElement fieldYear = $("input[placeholder='22']");
-
         var creditPage = startPage.checkCreditSystem();
-        creditPage.activeCard();
-        creditPage.localMonth();
-        creditPage.validName();
-        creditPage.validCode();
-        creditPage.clickButton();
-
-        assertTrue(creditPage.checkEmptyField(fieldYear, Condition.empty, 0, "Неверный формат"));
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.getValidActiveCard().getCard(),
+                        DataHelper.getValidMonth(),
+                        DataHelper.generateRandomNumber(0),
+                        DataHelper.getValidName(),
+                        DataHelper.generateRandomNumber(3));
+        creditPage.creditForTour(userInfo);
+        creditPage.notificationFormat(0);
         assertNull(SQLHelper.getStatusOfCardAfterCredit());
     }
 
@@ -207,34 +216,35 @@ public class CreditTest {
     @DisplayName("Should not be send credit request if name field is empty")
     public void shouldNotBeSendCreditRequestIfNameFieldIsEmpty() {
         StartPage startPage = new StartPage();
-
-        SelenideElement fieldName = $(byXpath("/html/body/div/div/form/fieldset/div[3]/span/span[1]/span/span/span[2]/input"));
-
         var creditPage = startPage.checkCreditSystem();
-        creditPage.activeCard();
-        creditPage.validDate();
-        creditPage.validCode();
-        creditPage.clickButton();
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.getValidActiveCard().getCard(),
+                        DataHelper.getValidMonth(),
+                        DataHelper.getValidYear(),
+                        DataHelper.getRandomLetters(0),
+                        DataHelper.generateRandomNumber(3));
+        creditPage.creditForTour(userInfo);
 
-        assertTrue(creditPage.checkEmptyField(fieldName, Condition.empty, 0, "Поле обязательно для заполнения"));
+        creditPage.notificationRequiredField(0);
         assertNull(SQLHelper.getStatusOfCardAfterCredit());
     }
 
-    //bug поле Владелец заполнено корректно, но при пустом поле Код появляется запись, что поле Владелец обязательно для заполнения
     @Test
     @DisplayName("Should not be send credit request if code field is empty")
     public void shouldNotBeSendCreditRequestIfCodeFieldIsEmpty() {
         StartPage startPage = new StartPage();
-
-        SelenideElement fieldCode = $("input[placeholder='999']");
         var creditPage = startPage.checkCreditSystem();
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.getValidActiveCard().getCard(),
+                        DataHelper.getValidMonth(),
+                        DataHelper.getValidYear(),
+                        DataHelper.getValidName(),
+                        DataHelper.generateRandomNumber(0));
+        creditPage.creditForTour(userInfo);
 
-        creditPage.activeCard();
-        creditPage.validDate();
-        creditPage.validName();
-        creditPage.clickButton();
-
-        assertTrue(creditPage.checkEmptyField(fieldCode, Condition.empty, 0, "Неверный формат"));
+        creditPage.notificationFormat(0);
         assertNull(SQLHelper.getStatusOfCardAfterCredit());
     }
 
@@ -242,16 +252,17 @@ public class CreditTest {
     @DisplayName("Should get credit rejection with unreal random card")
     public void shouldGetCreditRejectionInPaymentWithRandomUnrealCard() {
         StartPage startPage = new StartPage();
-
         var creditPage = startPage.checkCreditSystem();
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.generateRandomNumber(16),
+                        DataHelper.getValidMonth(),
+                        DataHelper.getValidYear(),
+                        DataHelper.getValidName(),
+                        DataHelper.generateRandomNumber(3));
+        creditPage.creditForTour(userInfo);
 
-        creditPage.randomCard();
-        creditPage.validDate();
-        creditPage.validName();
-        creditPage.validCode();
-        creditPage.clickButton();
-
-        assertTrue(creditPage.massageError("Ошибка\n" + "Ошибка! Банк отказал в проведении операции."));
+        creditPage.massageError();
         assertNull(SQLHelper.getStatusOfCardAfterCredit());
     }
 
@@ -259,17 +270,17 @@ public class CreditTest {
     @DisplayName("Should not be send credit request if 15 numbers are in card field")
     public void shouldNotBeSendCreditRequestIfFifteenNumbersAreInCardField() {
         StartPage startPage = new StartPage();
-
-        SelenideElement fieldCard = $("input[placeholder='0000 0000 0000 0000']");
         var creditPage = startPage.checkCreditSystem();
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        "444444444444444",
+                        DataHelper.getValidMonth(),
+                        DataHelper.getValidYear(),
+                        DataHelper.getValidName(),
+                        DataHelper.generateRandomNumber(3));
+        creditPage.creditForTour(userInfo);
 
-        fieldCard.sendKeys("444444444444444");
-        creditPage.validDate();
-        creditPage.validName();
-        creditPage.validCode();
-        creditPage.clickButton();
-
-        assertTrue(creditPage.checkNotEmptyField(fieldCard, Condition.empty, 0, "Неверный формат"));
+        creditPage.notificationFormat(0);
         assertNull(SQLHelper.getStatusOfCardAfterCredit());
     }
 
@@ -277,17 +288,17 @@ public class CreditTest {
     @DisplayName("Should not be send credit request if card is overdue in passed month")
     public void shouldNotBeSendCreditRequestIfCardIsOverdueInPassedMonth() {
         StartPage startPage = new StartPage();
-
-        SelenideElement fieldMonth = $("input[placeholder='08']");
         var creditPage = startPage.checkCreditSystem();
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.getValidActiveCard().getCard(),
+                        DataHelper.generateInvalidMonth(1),
+                        DataHelper.generateValidYear(0),
+                        DataHelper.getValidName(),
+                        DataHelper.generateRandomNumber(3));
+        creditPage.creditForTour(userInfo);
 
-        creditPage.activeCard();
-        creditPage.dateOfPassedMonth();
-        creditPage.validName();
-        creditPage.validCode();
-        creditPage.clickButton();
-
-        assertTrue(creditPage.checkNotEmptyField(fieldMonth, Condition.empty, 0, "Неверно указан срок действия карты"));
+        creditPage.notificationIncorrectDeadline(0);
         assertNull(SQLHelper.getStatusOfCardAfterCredit());
     }
 
@@ -295,18 +306,17 @@ public class CreditTest {
     @DisplayName("Should not be send credit request if one number in month field ")
     public void shouldNotBeSendCreditRequestIfOneNumberInMonthField() {
         StartPage startPage = new StartPage();
-
-        SelenideElement fieldMonth = $("input[placeholder='08']");
         var creditPage = startPage.checkCreditSystem();
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.getValidActiveCard().getCard(),
+                        DataHelper.generateRandomNumber(1),
+                        DataHelper.getValidYear(),
+                        DataHelper.getValidName(),
+                        DataHelper.generateRandomNumber(3));
+        creditPage.creditForTour(userInfo);
 
-        creditPage.activeCard();
-        creditPage.inputRandomNumbers(fieldMonth, 1, 9);
-        creditPage.localYear();
-        creditPage.validName();
-        creditPage.validCode();
-        creditPage.clickButton();
-
-        assertTrue(creditPage.checkNotEmptyField(fieldMonth, Condition.empty, 0, "Неверный формат"));
+        creditPage.notificationFormat(0);
         assertNull(SQLHelper.getStatusOfCardAfterCredit());
     }
 
@@ -314,96 +324,107 @@ public class CreditTest {
     @DisplayName("Should not be send credit request if 13 in month field")
     public void shouldNotBeSendCreditRequestIf13InMonthField() {
         StartPage startPage = new StartPage();
-
-        SelenideElement fieldMonth = $("input[placeholder='08']");
         var creditPage = startPage.checkCreditSystem();
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.getValidActiveCard().getCard(),
+                        "13",
+                        DataHelper.getValidYear(),
+                        DataHelper.getValidName(),
+                        DataHelper.generateRandomNumber(3));
+        creditPage.creditForTour(userInfo);
 
-        creditPage.activeCard();
-        creditPage.inputRandomNumbers(fieldMonth, 13, 13);
-        creditPage.localYear();
-        creditPage.validName();
-        creditPage.validCode();
-        creditPage.clickButton();
-
-        assertTrue(creditPage.checkNotEmptyField(fieldMonth, Condition.empty, 0, "Неверно указан срок действия карты"));
+        creditPage.notificationIncorrectDeadline(0);
         assertNull(SQLHelper.getStatusOfCardAfterCredit());
     }
 
     @Test
-    @DisplayName("Should not be send credit request if 00 in month field")
-    public void shouldNotBeSendCreditRequestIf00InMonthField() {
+    @DisplayName("Should not be send credit request if 00 in month field and current year")
+    public void shouldNotBeSendCreditRequestIf00InMonthFieldAndCurrentYear() {
         StartPage startPage = new StartPage();
-
-        SelenideElement fieldMonth = $("input[placeholder='08']");
         var creditPage = startPage.checkCreditSystem();
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.getValidActiveCard().getCard(),
+                        "00",
+                        DataHelper.generateValidYear(0),
+                        DataHelper.getValidName(),
+                        DataHelper.generateRandomNumber(3));
+        creditPage.creditForTour(userInfo);
 
-        creditPage.activeCard();
-        fieldMonth.sendKeys("00");
-        creditPage.localYear();
-        creditPage.validName();
-        creditPage.validCode();
-        creditPage.clickButton();
-
-        assertTrue(creditPage.checkNotEmptyField(fieldMonth, Condition.empty, 0, "Неверно указан срок действия карты"));
+        creditPage.notificationIncorrectDeadline(0);
         assertNull(SQLHelper.getStatusOfCardAfterCredit());
     }
 
     @Test
-    @DisplayName("Should not be send credit request if card expiry date more then 6 years")
-    public void shouldNotBeSendCreditRequestIfCardExpiryDateMoreThen6Years() {
+    @DisplayName("Should not be send credit request if 00 in month field and not current year")
+    public void shouldNotBeSendCreditRequestIf00InMonthFieldAndNotCurrentYear() {
         StartPage startPage = new StartPage();
-
-        SelenideElement fieldYear = $("input[placeholder='22']");
         var creditPage = startPage.checkCreditSystem();
-        var year = String.valueOf((Integer.parseInt(DataHelper.getLocalYear()) + 6));
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.getValidActiveCard().getCard(),
+                        "00",
+                        DataHelper.generateValidYear(1),
+                        DataHelper.getValidName(),
+                        DataHelper.generateRandomNumber(3));
+        creditPage.creditForTour(userInfo);
 
-        creditPage.activeCard();
-        creditPage.localMonth();
-        fieldYear.sendKeys(year);
-        creditPage.validName();
-        creditPage.validCode();
-        creditPage.clickButton();
-
-        assertTrue(creditPage.checkNotEmptyField(fieldYear, Condition.empty, 0, "Неверно указан срок действия карты"));
+        creditPage.notificationIncorrectDeadline(0);
         assertNull(SQLHelper.getStatusOfCardAfterCredit());
     }
 
     @Test
-    @DisplayName("Should not be send credit request if card expiry date is last year")
-    public void shouldNotBeSendCreditRequestIfCardExpiryDateIsLastYear() {
+    @DisplayName("Should not be send credit request if card expiry date more then 5 years")
+    public void shouldNotBeSendCreditRequestIfCardExpiryDateMoreThen5Years() {
         StartPage startPage = new StartPage();
-
-        SelenideElement fieldYear = $("input[placeholder='22']");
         var creditPage = startPage.checkCreditSystem();
-        var year = String.valueOf((Integer.parseInt(DataHelper.getLocalYear()) - 1));
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.getValidActiveCard().getCard(),
+                        DataHelper.getValidMonth(),
+                        DataHelper.generateValidYear(6),
+                        DataHelper.getValidName(),
+                        DataHelper.generateRandomNumber(3));
+        creditPage.creditForTour(userInfo);
 
-        creditPage.activeCard();
-        creditPage.localMonth();
-        fieldYear.sendKeys(year);
-        creditPage.validName();
-        creditPage.validCode();
-        creditPage.clickButton();
-
-        assertTrue(creditPage.checkNotEmptyField(fieldYear, Condition.empty, 0, "Истёк срок действия карты"));
+        creditPage.notificationIncorrectDeadline(0);
         assertNull(SQLHelper.getStatusOfCardAfterCredit());
     }
 
     @Test
-    @DisplayName("Should not be send credit request if one number is in card field")
-    public void shouldNotBeSendCreditRequestIfOneNumberIsInCardField() {
+    @DisplayName("Should not be send credit request if card expiry date is passed year")
+    public void shouldNotBeSendCreditRequestIfCardExpiryDateIsPassedYear() {
         StartPage startPage = new StartPage();
-
-        SelenideElement fieldYear = $("input[placeholder='22']");
         var creditPage = startPage.checkCreditSystem();
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.getValidActiveCard().getCard(),
+                        DataHelper.getValidMonth(),
+                        DataHelper.generateInvalidYear(1),
+                        DataHelper.getValidName(),
+                        DataHelper.generateRandomNumber(3));
+        creditPage.creditForTour(userInfo);
 
-        creditPage.activeCard();
-        creditPage.localMonth();
-        creditPage.inputRandomNumbers(fieldYear, 1, 9);
-        creditPage.validName();
-        creditPage.validCode();
-        creditPage.clickButton();
+        creditPage.notificationExpired(0);
+        assertNull(SQLHelper.getStatusOfCardAfterCredit());
+    }
 
-        assertTrue(creditPage.checkNotEmptyField(fieldYear, Condition.empty, 0, "Неверный формат"));
+    @Test
+    @DisplayName("Should not be send credit request if one number is in year field")
+    public void shouldNotBeSendCreditRequestIfOneNumberIsInYearField() {
+        StartPage startPage = new StartPage();
+        var creditPage = startPage.checkCreditSystem();
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.getValidActiveCard().getCard(),
+                        DataHelper.getValidMonth(),
+                        DataHelper.generateRandomNumber(1),
+                        DataHelper.getValidName(),
+                        DataHelper.generateRandomNumber(3));
+        creditPage.creditForTour(userInfo);
+
+        creditPage.notificationFormat(0);
         assertNull(SQLHelper.getStatusOfCardAfterCredit());
     }
 
@@ -411,56 +432,71 @@ public class CreditTest {
     @DisplayName("Should not be send credit request if two letters are in year field")
     public void shouldNotBeSendCreditRequestIfTwoLettersAreInYearField() {
         StartPage startPage = new StartPage();
-
-        SelenideElement fieldYear = $("input[placeholder='22']");
         var creditPage = startPage.checkCreditSystem();
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.getValidActiveCard().getCard(),
+                        DataHelper.getValidMonth(),
+                        DataHelper.getRandomLetters(2),
+                        DataHelper.getValidName(),
+                        DataHelper.generateRandomNumber(3));
+        creditPage.creditForTour(userInfo);
 
-        creditPage.activeCard();
-        creditPage.localMonth();
-        creditPage.inputRandomLetters(fieldYear, 2);
-        creditPage.validName();
-        creditPage.validCode();
-        creditPage.clickButton();
-
-        assertTrue(creditPage.checkEmptyField(fieldYear, Condition.empty, 0, "Неверный формат"));
+        creditPage.notificationFormat(0);
         assertNull(SQLHelper.getStatusOfCardAfterCredit());
     }
 
-    //bug результат-успешно
     @Test
     @DisplayName("Should not be send credit request if name in Cyrillic")
     public void shouldNotBeSendCreditRequestIfNameInCyrillic() {
         StartPage startPage = new StartPage();
-
-        SelenideElement fieldName = $(byXpath("/html/body/div/div/form/fieldset/div[3]/span/span[1]/span/span/span[2]/input"));
         var creditPage = startPage.checkCreditSystem();
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.getValidActiveCard().getCard(),
+                        DataHelper.getValidMonth(),
+                        DataHelper.getValidYear(),
+                        DataHelper.getCyrillicName(),
+                        DataHelper.generateRandomNumber(3));
+        creditPage.creditForTour(userInfo);
 
-        creditPage.activeCard();
-        creditPage.validDate();
-        creditPage.invalidName();
-        creditPage.validCode();
-        creditPage.clickButton();
-
-        assertTrue(creditPage.checkEmptyField(fieldName, Condition.empty, 0, "Неверный формат"));
+        creditPage.notificationFormat(0);
         assertNull(SQLHelper.getStatusOfCardAfterCredit());
     }
 
-    //bug результат-успешно
+    @Test
+    @DisplayName("Should not be send credit request if symbols are in name field")
+    public void shouldNotBeSendCreditRequestIfSymbolsAreInNameField() {
+        StartPage startPage = new StartPage();
+        var creditPage = startPage.checkCreditSystem();
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.getValidActiveCard().getCard(),
+                        DataHelper.getValidMonth(),
+                        DataHelper.getValidYear(),
+                        DataHelper.getRandomSymbols(18),
+                        DataHelper.generateRandomNumber(3));
+        creditPage.creditForTour(userInfo);
+
+        creditPage.notificationFormat(0);
+        assertNull(SQLHelper.getStatusOfCardAfterCredit());
+    }
+
     @Test
     @DisplayName("Should not be send credit request if number is in field name")
     public void shouldNotBeSendCreditRequestIfNumberIsInFieldName() {
         StartPage startPage = new StartPage();
-
-        SelenideElement fieldName = $(byXpath("/html/body/div/div/form/fieldset/div[3]/span/span[1]/span/span/span[2]/input"));
         var creditPage = startPage.checkCreditSystem();
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.getValidActiveCard().getCard(),
+                        DataHelper.getValidMonth(),
+                        DataHelper.getValidYear(),
+                        DataHelper.generateRandomNumber(6),
+                        DataHelper.generateRandomNumber(3));
+        creditPage.creditForTour(userInfo);
 
-        creditPage.activeCard();
-        creditPage.validDate();
-        creditPage.inputRandomNumbers(fieldName, 10, 100000);
-        creditPage.validCode();
-        creditPage.clickButton();
-
-        assertTrue(creditPage.checkEmptyField(fieldName, Condition.empty, 0, "Неверный формат"));
+        creditPage.notificationFormat(0);
         assertNull(SQLHelper.getStatusOfCardAfterCredit());
     }
 
@@ -468,35 +504,35 @@ public class CreditTest {
     @DisplayName("Should not be send credit request if one number is in field code")
     public void shouldNotBeSendCreditRequestIfOneNumberIsInFieldCode() {
         StartPage startPage = new StartPage();
-
-        SelenideElement fieldCode = $("input[placeholder='999']");
         var creditPage = startPage.checkCreditSystem();
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.getValidActiveCard().getCard(),
+                        DataHelper.getValidMonth(),
+                        DataHelper.getValidYear(),
+                        DataHelper.getValidName(),
+                        DataHelper.generateRandomNumber(1));
+        creditPage.creditForTour(userInfo);
 
-        creditPage.activeCard();
-        creditPage.validDate();
-        creditPage.validName();
-        creditPage.inputRandomNumbers(fieldCode, 1, 9);
-        creditPage.clickButton();
-
-        assertTrue(creditPage.checkNotEmptyField(fieldCode, Condition.empty, 0, "Неверный формат"));
+        creditPage.notificationFormat(0);
         assertNull(SQLHelper.getStatusOfCardAfterCredit());
     }
 
-    //bug поле Владелец заполнено корректно, но при пустом поле Код появляется запись, что поле Владелец обязательно для заполнения
     @Test
     @DisplayName("Should not be send credit request if three letters are in field code")
     void shouldNotBeSendCreditRequestIfThreeLettersAreInFieldCode() {
         StartPage startPage = new StartPage();
-
-        SelenideElement fieldCode = $("input[placeholder='999']");
         var creditPage = startPage.checkCreditSystem();
-        creditPage.activeCard();
-        creditPage.validDate();
-        creditPage.validName();
-        creditPage.inputRandomLetters(fieldCode, 3);
-        creditPage.clickButton();
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.getValidActiveCard().getCard(),
+                        DataHelper.getValidMonth(),
+                        DataHelper.getValidYear(),
+                        DataHelper.getValidName(),
+                        DataHelper.getRandomLetters(3));
+        creditPage.creditForTour(userInfo);
 
-        assertTrue(creditPage.checkEmptyField(fieldCode, Condition.empty, 0, "Неверный формат"));
+        creditPage.notificationFormat(0);
         assertNull(SQLHelper.getStatusOfCardAfterCredit());
     }
 
@@ -504,18 +540,17 @@ public class CreditTest {
     @DisplayName("Should not be more then three numbers in field code for credit request")
     void shouldNotBeMoreThenThreeNumbersInFieldCodeForCreditRequest() {
         StartPage startPage = new StartPage();
-
-        SelenideElement fieldCode = $("input[placeholder='999']");
-        int code = DataHelper.getRandomNumber(1000, 9999);
         var creditPage = startPage.checkCreditSystem();
-        creditPage.activeCard();
-        creditPage.validDate();
-        creditPage.validName();
-        fieldCode.sendKeys(String.valueOf(code));
-        fieldCode.shouldHave(Condition.exactValue(String.valueOf(code / 10)));
-        creditPage.clickButton();
+        DataHelper.UserInfo userInfo =
+                new DataHelper.UserInfo(
+                        DataHelper.getValidActiveCard().getCard(),
+                        DataHelper.getValidMonth(),
+                        DataHelper.getValidYear(),
+                        DataHelper.getValidName(),
+                        DataHelper.generateRandomNumber(4));
+        creditPage.creditForTour(userInfo);
 
-        assertTrue(creditPage.massagePositive("Успешно\n" + "Операция одобрена Банком."));
-        assertEquals("APPROVED", SQLHelper.getStatusOfCardAfterCredit());
+        creditPage.massagePositive();
+        assertEquals(DataHelper.getValidActiveCard().getStatus(), SQLHelper.getStatusOfCardAfterCredit());
     }
 }
