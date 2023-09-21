@@ -27,9 +27,9 @@
 4. Запустить Docker. Ввести во вкладке Terminal IntelliJ IDEA__Команду__: `docker-compose up -d`.
 5. Запустить SUT. Ввести во вкладке Terminal IntelliJ IDEA:
    
-   - для СУБД  MySQL __команду__: `java -jar ./artifacts/aqa-shop.jar "-Dspring.datasource.url=jdbc:postgresql://localhost:5432/app"`,
+   - для СУБД  MySQL __команду__: `java -jar ./artifacts/aqa-shop.jar "-Dspring.datasource.url=jdbc:mysql://localhost:3306/app"`,
    
-   - для СУБД PostgreSQL __команду__: `java -jar ./artifacts/aqa-shop.jar "-Dspring.datasource.url=jdbc:mysql://localhost:3306/app"`.
+   - для СУБД PostgreSQL __команду__: ` java -jar ./artifacts/aqa-shop.jar "-Dspring.datasource.url=jdbc:postgresql://localhost:5432/app "`.
    
 ## Запуск автотестов
 
