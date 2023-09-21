@@ -2,6 +2,7 @@ package ru.netology.test;
 
 import com.codeborne.selenide.logevents.SelenideLogger;
 import io.qameta.allure.selenide.AllureSelenide;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import ru.netology.data.DataHelper;
 import ru.netology.data.SQLHelper;
@@ -34,16 +35,17 @@ public class CreditTest {
     void shouldBeApprovedCreditAllFieldsAreValid() {
         StartPage startPage = new StartPage();
         var creditPage = startPage.checkCreditSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
         creditPage.creditForTour(userInfo);
 
-        creditPage.massagePositive();
+        creditPage.messagePositive();
         assertEquals(DataHelper.getValidActiveCard().getStatus(), SQLHelper.getStatusOfCardAfterCredit());
     }
 
@@ -52,16 +54,17 @@ public class CreditTest {
     void shouldBeApprovedCreditIfDoubleNameIsInNameField() {
         StartPage startPage = new StartPage();
         var creditPage = startPage.checkCreditSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getValidNameWithDash(),
                         DataHelper.generateRandomNumber(3));
         creditPage.creditForTour(userInfo);
 
-        creditPage.massagePositive();
+        creditPage.messagePositive();
         assertEquals(DataHelper.getValidActiveCard().getStatus(), SQLHelper.getStatusOfCardAfterCredit());
     }
 
@@ -70,16 +73,17 @@ public class CreditTest {
     void shouldBeApprovedCreditIfOneLetterIsInNameField() {
         StartPage startPage = new StartPage();
         var creditPage = startPage.checkCreditSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getRandomLetters(1),
                         DataHelper.generateRandomNumber(3));
         creditPage.creditForTour(userInfo);
 
-        creditPage.massagePositive();
+        creditPage.messagePositive();
         assertEquals(DataHelper.getValidActiveCard().getStatus(), SQLHelper.getStatusOfCardAfterCredit());
     }
 
@@ -88,16 +92,17 @@ public class CreditTest {
     void shouldBeApprovedCreditIfMaxLettersAreInNameField() {
         StartPage startPage = new StartPage();
         var creditPage = startPage.checkCreditSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getRandomLetters(30),
                         DataHelper.generateRandomNumber(3));
         creditPage.creditForTour(userInfo);
 
-        creditPage.massagePositive();
+        creditPage.messagePositive();
         assertEquals(DataHelper.getValidActiveCard().getStatus(), SQLHelper.getStatusOfCardAfterCredit());
     }
 
@@ -106,16 +111,17 @@ public class CreditTest {
     public void shouldGetCreditRejectionOnValidInactiveCard() {
         StartPage startPage = new StartPage();
         var creditPage = startPage.checkCreditSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidInactiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
         creditPage.creditForTour(userInfo);
 
-        creditPage.massageError();
+        creditPage.messageError();
         assertEquals(DataHelper.getValidInactiveCard().getStatus(), SQLHelper.getStatusOfCardAfterCredit());
     }
 
@@ -132,7 +138,7 @@ public class CreditTest {
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
         creditPage.creditForTour(userInfo);
-        creditPage.massagePositive();
+        creditPage.messagePositive();
         assertEquals(DataHelper.getValidActiveCard().getStatus(), SQLHelper.getStatusOfCardAfterCredit());
     }
 
@@ -144,11 +150,11 @@ public class CreditTest {
         var creditPage = startPage.checkCreditSystem();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
-                        DataHelper.generateRandomNumber(0),
-                        DataHelper.generateRandomNumber(0),
-                        DataHelper.generateRandomNumber(0),
-                        DataHelper.getRandomLetters(0),
-                        DataHelper.generateRandomNumber(0));
+                        StringUtils.EMPTY,
+                        StringUtils.EMPTY,
+                        StringUtils.EMPTY,
+                        StringUtils.EMPTY,
+                        StringUtils.EMPTY);
         creditPage.creditForTour(userInfo);
 
         creditPage.notificationFormat(0);
@@ -164,11 +170,12 @@ public class CreditTest {
     public void shouldNotBeSendCreditRequestIfCardFieldIsEmpty() {
         StartPage startPage = new StartPage();
         var creditPage = startPage.checkCreditSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
-                        DataHelper.generateRandomNumber(0),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        StringUtils.EMPTY,
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
         creditPage.creditForTour(userInfo);
@@ -182,11 +189,12 @@ public class CreditTest {
     public void shouldNotBeSendCreditRequestIfMonthFieldIsEmpty() {
         StartPage startPage = new StartPage();
         var creditPage = startPage.checkCreditSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.generateRandomNumber(0),
-                        DataHelper.getValidYear(),
+                        StringUtils.EMPTY,
+                        date.getYear(),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
         creditPage.creditForTour(userInfo);
@@ -200,11 +208,12 @@ public class CreditTest {
     public void shouldNotBeSendCreditRequestIfYearFieldIsEmpty() {
         StartPage startPage = new StartPage();
         var creditPage = startPage.checkCreditSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.generateRandomNumber(0),
+                        date.getMonth(),
+                        StringUtils.EMPTY,
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
         creditPage.creditForTour(userInfo);
@@ -217,12 +226,13 @@ public class CreditTest {
     public void shouldNotBeSendCreditRequestIfNameFieldIsEmpty() {
         StartPage startPage = new StartPage();
         var creditPage = startPage.checkCreditSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
-                        DataHelper.getRandomLetters(0),
+                        date.getMonth(),
+                        date.getYear(),
+                        StringUtils.EMPTY,
                         DataHelper.generateRandomNumber(3));
         creditPage.creditForTour(userInfo);
 
@@ -235,13 +245,14 @@ public class CreditTest {
     public void shouldNotBeSendCreditRequestIfCodeFieldIsEmpty() {
         StartPage startPage = new StartPage();
         var creditPage = startPage.checkCreditSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getValidName(),
-                        DataHelper.generateRandomNumber(0));
+                        StringUtils.EMPTY);
         creditPage.creditForTour(userInfo);
 
         creditPage.notificationFormat(0);
@@ -253,16 +264,17 @@ public class CreditTest {
     public void shouldGetCreditRejectionInPaymentWithRandomUnrealCard() {
         StartPage startPage = new StartPage();
         var creditPage = startPage.checkCreditSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.generateRandomNumber(16),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
         creditPage.creditForTour(userInfo);
 
-        creditPage.massageError();
+        creditPage.messageError();
         assertNull(SQLHelper.getStatusOfCardAfterCredit());
     }
 
@@ -271,11 +283,12 @@ public class CreditTest {
     public void shouldNotBeSendCreditRequestIfFifteenNumbersAreInCardField() {
         StartPage startPage = new StartPage();
         var creditPage = startPage.checkCreditSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         "444444444444444",
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
         creditPage.creditForTour(userInfo);
@@ -307,11 +320,12 @@ public class CreditTest {
     public void shouldNotBeSendCreditRequestIfOneNumberInMonthField() {
         StartPage startPage = new StartPage();
         var creditPage = startPage.checkCreditSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
                         DataHelper.generateRandomNumber(1),
-                        DataHelper.getValidYear(),
+                        date.getYear(),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
         creditPage.creditForTour(userInfo);
@@ -325,11 +339,12 @@ public class CreditTest {
     public void shouldNotBeSendCreditRequestIf13InMonthField() {
         StartPage startPage = new StartPage();
         var creditPage = startPage.checkCreditSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
                         "13",
-                        DataHelper.getValidYear(),
+                        date.getYear(),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
         creditPage.creditForTour(userInfo);
@@ -379,10 +394,11 @@ public class CreditTest {
     public void shouldNotBeSendCreditRequestIfCardExpiryDateMoreThen5Years() {
         StartPage startPage = new StartPage();
         var creditPage = startPage.checkCreditSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
+                        date.getMonth(),
                         DataHelper.generateValidYear(6),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
@@ -397,10 +413,11 @@ public class CreditTest {
     public void shouldNotBeSendCreditRequestIfCardExpiryDateIsPassedYear() {
         StartPage startPage = new StartPage();
         var creditPage = startPage.checkCreditSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
+                        date.getMonth(),
                         DataHelper.generateInvalidYear(1),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
@@ -415,10 +432,11 @@ public class CreditTest {
     public void shouldNotBeSendCreditRequestIfOneNumberIsInYearField() {
         StartPage startPage = new StartPage();
         var creditPage = startPage.checkCreditSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
+                        date.getMonth(),
                         DataHelper.generateRandomNumber(1),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
@@ -433,10 +451,11 @@ public class CreditTest {
     public void shouldNotBeSendCreditRequestIfTwoLettersAreInYearField() {
         StartPage startPage = new StartPage();
         var creditPage = startPage.checkCreditSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
+                        date.getMonth(),
                         DataHelper.getRandomLetters(2),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
@@ -451,11 +470,12 @@ public class CreditTest {
     public void shouldNotBeSendCreditRequestIfNameInCyrillic() {
         StartPage startPage = new StartPage();
         var creditPage = startPage.checkCreditSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getCyrillicName(),
                         DataHelper.generateRandomNumber(3));
         creditPage.creditForTour(userInfo);
@@ -469,11 +489,12 @@ public class CreditTest {
     public void shouldNotBeSendCreditRequestIfSymbolsAreInNameField() {
         StartPage startPage = new StartPage();
         var creditPage = startPage.checkCreditSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getRandomSymbols(18),
                         DataHelper.generateRandomNumber(3));
         creditPage.creditForTour(userInfo);
@@ -487,11 +508,12 @@ public class CreditTest {
     public void shouldNotBeSendCreditRequestIfNumberIsInFieldName() {
         StartPage startPage = new StartPage();
         var creditPage = startPage.checkCreditSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.generateRandomNumber(6),
                         DataHelper.generateRandomNumber(3));
         creditPage.creditForTour(userInfo);
@@ -505,11 +527,12 @@ public class CreditTest {
     public void shouldNotBeSendCreditRequestIfOneNumberIsInFieldCode() {
         StartPage startPage = new StartPage();
         var creditPage = startPage.checkCreditSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(1));
         creditPage.creditForTour(userInfo);
@@ -523,11 +546,12 @@ public class CreditTest {
     void shouldNotBeSendCreditRequestIfThreeLettersAreInFieldCode() {
         StartPage startPage = new StartPage();
         var creditPage = startPage.checkCreditSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getValidName(),
                         DataHelper.getRandomLetters(3));
         creditPage.creditForTour(userInfo);
@@ -541,16 +565,17 @@ public class CreditTest {
     void shouldNotBeMoreThenThreeNumbersInFieldCodeForCreditRequest() {
         StartPage startPage = new StartPage();
         var creditPage = startPage.checkCreditSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(4));
         creditPage.creditForTour(userInfo);
 
-        creditPage.massagePositive();
+        creditPage.messagePositive();
         assertEquals(DataHelper.getValidActiveCard().getStatus(), SQLHelper.getStatusOfCardAfterCredit());
     }
 }

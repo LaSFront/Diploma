@@ -33,12 +33,14 @@ dependencies {
     testImplementation 'commons-dbutils:commons-dbutils:1.7'
     testImplementation 'org.postgresql:postgresql:42.5.0'
     testImplementation 'io.qameta.allure:allure-selenide:2.20.1'
-    testImplementation 'com.ibm.icu:icu4j:60.1'
+    testImplementation 'com.ibm.icu:icu4j:60.1'                   // зависимость для Transliterator
 }
 test {
     useJUnitPlatform()
     systemProperty 'selenide.headless', System.getProperty('selenide.headless')
-    systemProperty 'db.url', System.getProperty('db.url')
+
+    systemProperty 'db.url', System.getProperty('db.url', 'jdbc:mysql://localhost:3306/app')
+
     systemProperty 'db.user', System.getProperty('db.user', 'app')
     systemProperty 'db.password', System.getProperty('db.password', 'pass')
     systemProperty 'SUT.url', System.getProperty('SUT.url', "http://localhost:8080/")

@@ -1,19 +1,19 @@
 package ru.netology.data;
 
 import com.github.javafaker.Faker;
+import com.ibm.icu.text.Transliterator;
 import lombok.Value;
+import org.apache.commons.lang3.RandomStringUtils;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Random;
 
-import com.ibm.icu.text.Transliterator;
-import org.apache.commons.lang3.RandomStringUtils;
-
 public class DataHelper {
 
     private static final Faker faker = new Faker(new Locale("ru"));
+    private static final Random random = new Random();
 
     private DataHelper() {
     }
@@ -43,25 +43,21 @@ public class DataHelper {
     }
 
     // date
-
-    public static int getRandomNumber(int min, int max) {
-        return (int) (Math.random() * (max - min) + min);
+    @Value
+    public static class Date {
+        private String month;
+        private String year;
     }
 
     // выберет любую дату в диапазоне от сегодня до 31 декабря года=текущему + 5
-    //1825 = 365*5 дней за 5 лет
-
-    public static LocalDate getDateInValidRange() {
-        int localMonth = LocalDate.now().getMonthValue();
-        return LocalDate.now().plusDays(getRandomNumber(1, (12 - localMonth) * 30 + 1825));
+    //1825 = 365*5 - дней за 5 лет
+    public static Date getValidDate() {
+        LocalDate date = LocalDate.now().plusDays(getRandomNumber(1, (12 - LocalDate.now().getMonthValue()) * 30 + 1825));
+        return new Date(date.format(DateTimeFormatter.ofPattern("MM")), date.format(DateTimeFormatter.ofPattern("yy")));
     }
 
-    public static String getValidMonth() {
-        return getDateInValidRange().format(DateTimeFormatter.ofPattern("MM"));
-    }
-
-    public static String getValidYear() {
-        return getDateInValidRange().format(DateTimeFormatter.ofPattern("yy"));
+    public static int getRandomNumber(int min, int max) {
+        return (int) (Math.random() * (max - min) + min);
     }
 
     public static String generateValidMonth(int num) {
@@ -112,7 +108,6 @@ public class DataHelper {
 
     public static String getRandomSymbols(int numbers) {
         String symbols = "!~`@#$%^&*()_+*/|,.?{}[]:;'<> ";
-        Random random = new Random();
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < numbers; i++) {
             builder.append(symbols.charAt(random.nextInt(symbols.length() - 1)));

@@ -2,14 +2,15 @@ package ru.netology.test;
 
 import com.codeborne.selenide.logevents.SelenideLogger;
 import io.qameta.allure.selenide.AllureSelenide;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import ru.netology.data.DataHelper;
 import ru.netology.data.SQLHelper;
-import ru.netology.page.PaymentPage;
 import ru.netology.page.StartPage;
 
-import static com.codeborne.selenide.Selenide.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.codeborne.selenide.Selenide.open;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class PaymentTest {
 
@@ -35,35 +36,37 @@ public class PaymentTest {
     void shouldBeSuccessPaymentAllFieldsAreValid() {
         StartPage startPage = new StartPage();
         var paymentPage = startPage.checkPaymentSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
         paymentPage.orderTour(userInfo);
 
-        paymentPage.massagePositive();
+        paymentPage.messagePositive();
         assertEquals(DataHelper.getValidActiveCard().getStatus(), SQLHelper.getStatusOfCardAfterPayment());
         assertEquals(45000, SQLHelper.getAmountOfPayment() / 100);
     }
 
-   @Test
+    @Test
     @DisplayName("Should be success payment if double name is in name field")
     void shouldBeSuccessPaymentIfDoubleNameIsInNameField() {
         StartPage startPage = new StartPage();
         var paymentPage = startPage.checkPaymentSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getValidNameWithDash(),
                         DataHelper.generateRandomNumber(3));
         paymentPage.orderTour(userInfo);
 
-        paymentPage.massagePositive();
+        paymentPage.messagePositive();
         assertEquals(DataHelper.getValidActiveCard().getStatus(), SQLHelper.getStatusOfCardAfterPayment());
         assertEquals(45000, SQLHelper.getAmountOfPayment() / 100);
     }
@@ -73,16 +76,17 @@ public class PaymentTest {
     void shouldBeSuccessPaymentIfOneLetterIsInNameField() {
         StartPage startPage = new StartPage();
         var paymentPage = startPage.checkPaymentSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getRandomLetters(1),
                         DataHelper.generateRandomNumber(3));
         paymentPage.orderTour(userInfo);
 
-        paymentPage.massagePositive();
+        paymentPage.messagePositive();
         assertEquals(DataHelper.getValidActiveCard().getStatus(), SQLHelper.getStatusOfCardAfterPayment());
         assertEquals(45000, SQLHelper.getAmountOfPayment() / 100);
     }
@@ -92,16 +96,17 @@ public class PaymentTest {
     void shouldBeSuccessPaymentIfMaxLettersAreInNameField() {
         StartPage startPage = new StartPage();
         var paymentPage = startPage.checkPaymentSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getRandomLetters(30),
                         DataHelper.generateRandomNumber(3));
         paymentPage.orderTour(userInfo);
 
-        paymentPage.massagePositive();
+        paymentPage.messagePositive();
         assertEquals(DataHelper.getValidActiveCard().getStatus(), SQLHelper.getStatusOfCardAfterPayment());
         assertEquals(45000, SQLHelper.getAmountOfPayment() / 100);
     }
@@ -110,18 +115,18 @@ public class PaymentTest {
     @DisplayName("Should get rejection in payment on valid inactive card")
     public void shouldGetRejectionInPaymentOnInactiveCard() {
         StartPage startPage = new StartPage();
-
         var paymentPage = startPage.checkPaymentSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidInactiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
         paymentPage.orderTour(userInfo);
 
-        paymentPage.massageError();
+        paymentPage.messageError();
         assertEquals(DataHelper.getValidInactiveCard().getStatus(), SQLHelper.getStatusOfCardAfterPayment());
         assertNull(SQLHelper.getAmountOfPayment());
     }
@@ -140,7 +145,7 @@ public class PaymentTest {
                         DataHelper.generateRandomNumber(3));
         paymentPage.orderTour(userInfo);
 
-        paymentPage.massagePositive();
+        paymentPage.messagePositive();
         assertEquals(DataHelper.getValidActiveCard().getStatus(), SQLHelper.getStatusOfCardAfterPayment());
         assertEquals(45000, SQLHelper.getAmountOfPayment() / 100);
     }
@@ -153,11 +158,11 @@ public class PaymentTest {
         var paymentPage = startPage.checkPaymentSystem();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
-                        DataHelper.generateRandomNumber(0),
-                        DataHelper.generateRandomNumber(0),
-                        DataHelper.generateRandomNumber(0),
-                        DataHelper.getRandomLetters(0),
-                        DataHelper.generateRandomNumber(0));
+                        StringUtils.EMPTY,
+                        StringUtils.EMPTY,
+                        StringUtils.EMPTY,
+                        StringUtils.EMPTY,
+                        StringUtils.EMPTY);
         paymentPage.orderTour(userInfo);
 
         paymentPage.notificationFormat(0);
@@ -173,11 +178,12 @@ public class PaymentTest {
     public void shouldNotBeSendPaymentRequestIfCardFieldIsEmpty() {
         StartPage startPage = new StartPage();
         var paymentPage = startPage.checkPaymentSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
-                        DataHelper.generateRandomNumber(0),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        StringUtils.EMPTY,
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
         paymentPage.orderTour(userInfo);
@@ -191,11 +197,12 @@ public class PaymentTest {
     public void shouldNotBeSendPaymentRequestIfMonthFieldIsEmpty() {
         StartPage startPage = new StartPage();
         var paymentPage = startPage.checkPaymentSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.generateRandomNumber(0),
-                        DataHelper.getValidYear(),
+                        StringUtils.EMPTY,
+                        date.getYear(),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
         paymentPage.orderTour(userInfo);
@@ -209,11 +216,12 @@ public class PaymentTest {
     public void shouldNotBeSendPaymentRequestIfYearFieldIsEmpty() {
         StartPage startPage = new StartPage();
         var paymentPage = startPage.checkPaymentSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.generateRandomNumber(0),
+                        date.getMonth(),
+                        StringUtils.EMPTY,
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
         paymentPage.orderTour(userInfo);
@@ -227,12 +235,13 @@ public class PaymentTest {
     public void shouldNotBeSendPaymentRequestIfNameFieldIsEmpty() {
         StartPage startPage = new StartPage();
         var paymentPage = startPage.checkPaymentSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
-                        DataHelper.getRandomLetters(0),
+                        date.getMonth(),
+                        date.getYear(),
+                        StringUtils.EMPTY,
                         DataHelper.generateRandomNumber(3));
         paymentPage.orderTour(userInfo);
 
@@ -245,13 +254,14 @@ public class PaymentTest {
     public void shouldNotBeSendPaymentRequestIfCodeFieldIsEmpty() {
         StartPage startPage = new StartPage();
         var paymentPage = startPage.checkPaymentSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getValidName(),
-                        DataHelper.generateRandomNumber(0));
+                        StringUtils.EMPTY);
         paymentPage.orderTour(userInfo);
 
         paymentPage.notificationFormat(0);
@@ -263,16 +273,17 @@ public class PaymentTest {
     public void shouldGetRejectionInPaymentWithRandomUnrealCard() {
         StartPage startPage = new StartPage();
         var paymentPage = startPage.checkPaymentSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.generateRandomNumber(16),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
         paymentPage.orderTour(userInfo);
 
-        paymentPage.massageError();
+        paymentPage.messageError();
         assertNull(SQLHelper.getStatusOfCardAfterPayment());
         assertNull(SQLHelper.getAmountOfPayment());
     }
@@ -282,11 +293,12 @@ public class PaymentTest {
     public void shouldNotBeSendPaymentRequestIfFifteenNumbersAreInCardField() {
         StartPage startPage = new StartPage();
         var paymentPage = startPage.checkPaymentSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         "444444444444444",
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
         paymentPage.orderTour(userInfo);
@@ -318,11 +330,12 @@ public class PaymentTest {
     public void shouldNotBeSendPaymentRequestIfOneNumberInMonthField() {
         StartPage startPage = new StartPage();
         var paymentPage = startPage.checkPaymentSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
                         DataHelper.generateRandomNumber(1),
-                        DataHelper.getValidYear(),
+                        date.getYear(),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
         paymentPage.orderTour(userInfo);
@@ -336,11 +349,12 @@ public class PaymentTest {
     public void shouldNotBeSendPaymentRequestIf13InMonthField() {
         StartPage startPage = new StartPage();
         var paymentPage = startPage.checkPaymentSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
                         "13",
-                        DataHelper.getValidYear(),
+                        date.getYear(),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
         paymentPage.orderTour(userInfo);
@@ -371,7 +385,6 @@ public class PaymentTest {
     @DisplayName("Should not be send payment request if 00 in month field and not current year")
     public void shouldNotBeSendPaymentRequestIf00InMonthFieldAndNotCurrentYear() {
         StartPage startPage = new StartPage();
-        PaymentPage page = new PaymentPage();
         var paymentPage = startPage.checkPaymentSystem();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
@@ -394,7 +407,7 @@ public class PaymentTest {
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
+                        DataHelper.generateValidMonth(0),
                         DataHelper.generateValidYear(6),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
@@ -412,7 +425,7 @@ public class PaymentTest {
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
+                        DataHelper.generateValidMonth(0),
                         DataHelper.generateInvalidYear(1),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
@@ -430,7 +443,7 @@ public class PaymentTest {
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
+                        DataHelper.generateValidMonth(0),
                         DataHelper.generateRandomNumber(1),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
@@ -448,7 +461,7 @@ public class PaymentTest {
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
+                        DataHelper.generateValidMonth(0),
                         DataHelper.getRandomLetters(2),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
@@ -463,11 +476,12 @@ public class PaymentTest {
     public void shouldNotBeSendPaymentRequestIfNameInCyrillic() {
         StartPage startPage = new StartPage();
         var paymentPage = startPage.checkPaymentSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getCyrillicName(),
                         DataHelper.generateRandomNumber(3));
         paymentPage.orderTour(userInfo);
@@ -482,11 +496,12 @@ public class PaymentTest {
     public void shouldNotBeSendPaymentRequestIfSymbolsAreInNameField() {
         StartPage startPage = new StartPage();
         var paymentPage = startPage.checkPaymentSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getRandomSymbols(18),
                         DataHelper.generateRandomNumber(3));
         paymentPage.orderTour(userInfo);
@@ -500,11 +515,12 @@ public class PaymentTest {
     public void shouldNotBeSendPaymentRequestIfNumberIsInFieldName() {
         StartPage startPage = new StartPage();
         var paymentPage = startPage.checkPaymentSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.generateRandomNumber(6),
                         DataHelper.generateRandomNumber(3));
         paymentPage.orderTour(userInfo);
@@ -518,11 +534,12 @@ public class PaymentTest {
     public void shouldNotBeSendPaymentRequestIfOneNumberIsInFieldCode() {
         StartPage startPage = new StartPage();
         var paymentPage = startPage.checkPaymentSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(1));
         paymentPage.orderTour(userInfo);
@@ -536,11 +553,12 @@ public class PaymentTest {
     void shouldNotBeSendPaymentRequestIfThreeLettersAreInFieldCode() {
         StartPage startPage = new StartPage();
         var paymentPage = startPage.checkPaymentSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getValidName(),
                         DataHelper.getRandomLetters(3));
         paymentPage.orderTour(userInfo);
@@ -554,16 +572,17 @@ public class PaymentTest {
     void shouldNotBeMoreThenThreeNumbersInFieldCodeForPaymentRequest() {
         StartPage startPage = new StartPage();
         var paymentPage = startPage.checkPaymentSystem();
+        var date = DataHelper.getValidDate();
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.getValidMonth(),
-                        DataHelper.getValidYear(),
+                        date.getMonth(),
+                        date.getYear(),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(4));
         paymentPage.orderTour(userInfo);
 
-        paymentPage.massagePositive();
+        paymentPage.messagePositive();
         assertEquals(DataHelper.getValidActiveCard().getStatus(), SQLHelper.getStatusOfCardAfterPayment());
     }
 }

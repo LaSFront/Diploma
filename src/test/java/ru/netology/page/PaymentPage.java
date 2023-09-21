@@ -39,12 +39,12 @@ public class PaymentPage {
         return new StartPage();
     }
 
-    // massages
-    public void massagePositive() {
+    // messages
+    public void messagePositive() {
         massageSuccess.shouldHave(Condition.exactText("Успешно\n" + "Операция одобрена Банком."), Duration.ofSeconds(25)).shouldBe(visible);
     }
 
-    public void massageError() {
+    public void messageError() {
         massageError.shouldHave(Condition.exactText("Ошибка\n" + "Ошибка! Банк отказал в проведении операции."), Duration.ofSeconds(25)).shouldBe(visible);
     }
 
