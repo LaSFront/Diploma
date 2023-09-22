@@ -11,8 +11,8 @@
 ## Документация
 
 1. [План автоматизации](https://github.com/LaSFront/Diploma/blob/main/documentation/Plan.md)
-2. [Отчет о тестировании](C:\Users\shoor\IdeaProjects\JAVA_TEST\Diploma\documentation\Report.md)
-3. [Отчет об автоматизации](C:\Users\shoor\IdeaProjects\JAVA_TEST\Diploma\documentation\Summury.md)
+2. [Отчет о тестировании](https://github.com/LaSFront/Diploma/blob/main/documentation/Report.md)
+3. [Отчет об автоматизации](https://github.com/LaSFront/Diploma/blob/main/documentation/Summury.md)
 ## Окружение
 - Google Chrome.
 - IntelliJ IDEA.
