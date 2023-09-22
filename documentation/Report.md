@@ -5,7 +5,7 @@
 
 В ходе тестирования проведено подключение к СУБД MySQL и СУБД PostrgeSQL.
 
-Тестирование проведено в соответствии с [Планом тестирования](C:\Users\shoor\IdeaProjects\JAVA_TEST\Diploma\documentation\Plan.md).
+Тестирование проведено в соответствии с [Планом тестирования](https://github.com/LaSFront/Diploma/blob/main/documentation/Plan.md).
 
 # Тест-кейсы
 **Запланировано:** 56.
@@ -26,6 +26,8 @@
 Подготовлено 10 баг-репортов.
 
 # ALLURE REPORT
+![allure2](https://github.com/LaSFront/Diploma/assets/130778153/4fa4ae63-6c15-4efe-a8c2-e428c9e1e6e9)
+![allure](https://github.com/LaSFront/Diploma/assets/130778153/d3e279e5-fff2-4375-a328-2c2100fb7e10)
 
 
 # Общие рекомендации
