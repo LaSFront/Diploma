@@ -9,11 +9,12 @@ branches:
 build: off
 
 install:
-  - sudo curl -L "https://github.com/docker/compose/releases/download/1.28.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-  - sudo chmod +x /usr/local/bin/docker-compose
-  - docker-compose up --build -d
+ -  mkdir -p ~/.docker/cli-plugins/
+  - curl -SL https://github.com/docker/compose-cli/releases/download/v2.0.0-rc.1/docker-compose-linux-amd64 -o ~/.docker/cli-plugins/docker-compose
+  - chmod +x ~/.docker/cli-plugins/docker-compose
+  - sudo docker-compose up -d
   - sleep 15
-  - java -jar artifacts./aqa-shop.jar &
+  - java -Dspring.datasource.url=jdbc:mysql://localhost:3306/app -jar artifacts/aqa-shop.jar &
   - sleep 15
 
 build_script:
