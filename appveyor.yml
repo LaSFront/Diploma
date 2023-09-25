@@ -13,7 +13,7 @@ install:
   - sudo chmod +x /usr/local/bin/docker-compose
   - docker-compose up --build -d
   - sleep 15
-  - java -jar ./aqa-shop.jar &
+  - java -jar artifacts./aqa-shop.jar &
   - sleep 15
 
 build_script:
