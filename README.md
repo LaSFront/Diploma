@@ -1,3 +1,5 @@
+# Diploma [![Build status](https://ci.appveyor.com/api/projects/status/vmnsr0mrguya6tp0?svg=true)](https://ci.appveyor.com/project/LaSFront/diploma)
+
 # Дипломный проект по профессии «Тестировщик»
 
 Тестируемое приложение — веб-сервис, который предлагает купить тур по определённой цене двумя способами:
