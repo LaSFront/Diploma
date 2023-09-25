@@ -1,0 +1,28 @@
+image: Ubuntu
+
+stack: jdk 11
+
+branches:
+  only:
+    - main
+
+build: off
+
+install:
+  - chmod +x gradlew
+  - docker-compose version
+  - docker-compose build
+  - docker-compose up &
+  - sleep 30
+  - java -Dspring.datasource.url=jdbc:postgresql://localhost:5432/app -jar artifacts/aqa-shop.jar &
+  - sleep 10
+build_script:
+  - sleep 20
+  - ./gradlew test -Dselenide.headless=true -Durl=jdbc:postgresql://localhost:5432/app --info
+after_build:
+  - 7z a results.zip build/reports/tests
+artifacts:
+  - path: results.zip
+on_failure:
+  - 7z a results.zip build/reports/tests
+  - appveyor PushArtifact results.zip
