@@ -9,20 +9,13 @@ branches:
 build: off
 
 install:
-  - chmod +x gradlew
-  - docker-compose version
-  - docker-compose build
-  - docker-compose up &
-  - sleep 30
-  - java -Dspring.datasource.url=jdbc:postgresql://localhost:5432/app -jar artifacts/aqa-shop.jar &
-  - sleep 10
+  - sudo curl -L "https://github.com/docker/compose/releases/download/1.28.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+  - sudo chmod +x /usr/local/bin/docker-compose
+  - docker-compose up --build -d
+  - sleep 15
+  - java -jar artifacts./aqa-shop.jar &
+  - sleep 15
+
 build_script:
-  - sleep 20
-  - ./gradlew test -Dselenide.headless=true -Durl=jdbc:postgresql://localhost:5432/app --info
-after_build:
-  - 7z a results.zip build/reports/tests
-artifacts:
-  - path: results.zip
-on_failure:
-  - 7z a results.zip build/reports/tests
-  - appveyor PushArtifact results.zip
+  - chmod +x gradlew
+  - ./gradlew clean test -Dselenide.headless=true
