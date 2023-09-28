@@ -13,10 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class PaymentTest {
+    private static String url = System.getProperty("SUT.url");
 
     @BeforeEach
-    void setUp() {
-        open("http://localhost:8080");
+    void setUp() { //в build.gradle
+        open(url);
         SQLHelper.cleanDB();                                            //очищать "ДО" для проверки того, что в БД не ушел запрос
     }
 
@@ -315,7 +316,7 @@ public class PaymentTest {
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.generateInvalidMonth(1),
+                        DataHelper.generateValidMonth(-1),
                         DataHelper.generateValidYear(0),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
@@ -426,7 +427,7 @@ public class PaymentTest {
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
                         DataHelper.generateValidMonth(0),
-                        DataHelper.generateInvalidYear(1),
+                        DataHelper.generateValidYear(-1),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
         paymentPage.orderTour(userInfo);

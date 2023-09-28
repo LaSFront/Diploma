@@ -4,6 +4,7 @@ import com.codeborne.selenide.logevents.SelenideLogger;
 import io.qameta.allure.selenide.AllureSelenide;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
+import org.openqa.selenium.firefox.FirefoxDriver;
 import ru.netology.data.DataHelper;
 import ru.netology.data.SQLHelper;
 import ru.netology.page.StartPage;
@@ -12,10 +13,11 @@ import static com.codeborne.selenide.Selenide.open;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CreditTest {
+    private static String url = System.getProperty("SUT.url");
 
     @BeforeEach
     void setUp() {
-        open("http://localhost:8080");
+        open(url);
         SQLHelper.cleanDB();
     }
 
@@ -305,7 +307,7 @@ public class CreditTest {
         DataHelper.UserInfo userInfo =
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
-                        DataHelper.generateInvalidMonth(1),
+                        DataHelper.generateValidMonth(-1),
                         DataHelper.generateValidYear(0),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
@@ -418,7 +420,7 @@ public class CreditTest {
                 new DataHelper.UserInfo(
                         DataHelper.getValidActiveCard().getCard(),
                         date.getMonth(),
-                        DataHelper.generateInvalidYear(1),
+                        DataHelper.generateValidYear(-1),
                         DataHelper.getValidName(),
                         DataHelper.generateRandomNumber(3));
         creditPage.creditForTour(userInfo);

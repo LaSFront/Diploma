@@ -67,14 +67,14 @@ public class DataHelper {
     public static String generateValidYear(int num) {
         return LocalDate.now().plusYears(num).format(DateTimeFormatter.ofPattern("yy"));
     }
-
-    public static String generateInvalidMonth(int num) {
+    ///!!! для прошедших дат использовать отрицательные значения в plus-методах
+    /*public static String generateInvalidMonth(int num) {
         return LocalDate.now().minusMonths(num).format(DateTimeFormatter.ofPattern("MM"));
     }
 
     public static String generateInvalidYear(int num) {
         return LocalDate.now().minusYears(num).format(DateTimeFormatter.ofPattern("yy"));
-    }
+    }*/
 
     //name
     public static String getValidName() {
